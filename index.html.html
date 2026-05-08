@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator Nilai SSPP</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0c0f1a;
+    --surface: #131728;
+    --surface2: #1a2035;
+    --border: #252c45;
+    --accent: #4f8ef7;
+    --accent2: #a78bfa;
+    --text: #e8eaf6;
+    --muted: #6b7499;
+    --A: #34d399; --AB: #60a5fa; --B: #818cf8;
+    --BC: #f59e0b; --C: #fb923c; --D: #f87171; --E: #ef4444;
+  }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background-image:
+      radial-gradient(ellipse 60% 40% at 20% 10%, rgba(79,142,247,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(167,139,250,0.07) 0%, transparent 60%);
+  }
+
+  .card {
+    width: 100%;
+    max-width: 560px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 32px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .header .label {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .header h1 span { color: var(--accent2); }
+
+  /* Section */
+  .section {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .section-weight {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    background: rgba(79,142,247,0.15);
+    color: var(--accent);
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(79,142,247,0.25);
+  }
+
+  /* Quiz grid */
+  .quiz-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  .quiz-item label {
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  /* Input */
+  input[type="number"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    padding: 10px 6px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  input[type="number"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(79,142,247,0.15);
+  }
+  input[type="number"].locked {
+    border-color: rgba(52,211,153,0.3);
+    background: rgba(52,211,153,0.04);
+    color: #34d399;
+    cursor: default;
+  }
+  input[type="number"].highlight {
+    border-color: rgba(167,139,250,0.5);
+    background: rgba(167,139,250,0.05);
+    animation: pulse-border 2s infinite;
+  }
+  @keyframes pulse-border {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(167,139,250,0.3); }
+    50% { box-shadow: 0 0 0 4px rgba(167,139,250,0.15); }
+  }
+
+  /* Single input row */
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .input-row label {
+    font-size: 13px;
+    color: var(--muted);
+    flex: 1;
+  }
+  .input-row .input-wrap {
+    width: 120px;
+    flex-shrink: 0;
+  }
+
+  .locked-badge {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #34d399;
+    background: rgba(52,211,153,0.1);
+    border: 1px solid rgba(52,211,153,0.25);
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .new-badge {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent2);
+    background: rgba(167,139,250,0.12);
+    border: 1px solid rgba(167,139,250,0.3);
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+    animation: blink 1.5s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%,100% { opacity:1; } 50% { opacity:0.4; }
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 0;
+  }
+
+  /* Bobot row */
+  .bobot-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .bobot-chip {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 8px;
+  }
+
+  /* Result */
+  .result-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 20px;
+    margin-top: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(79,142,247,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .result-label {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .result-score {
+    font-size: 56px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+    margin-bottom: 10px;
+    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .result-index {
+    display: inline-block;
+    font-size: 22px;
+    font-weight: 700;
+    padding: 6px 24px;
+    border-radius: 30px;
+    margin-bottom: 8px;
+    transition: all 0.3s;
+  }
+  .result-range {
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    margin-top: 16px;
+    height: 6px;
+    background: var(--bg);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1), background 0.4s;
+  }
+
+  /* Breakdown */
+  .breakdown {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .breakdown-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .breakdown-item .bname {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .breakdown-item .bval {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* Index table */
+  .index-table {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    justify-content: center;
+  }
+  .idx-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    opacity: 0.5;
+    transition: all 0.3s;
+  }
+  .idx-chip.active {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  .note {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 12px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div class="label">Kalkulator Nilai</div>
+    <h1>Mata Kuliah <span>SSPP</span></h1>
+  </div>
+
+  <!-- KUIS (5 kuis, rata-rata) -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Kuis</div>
+      <div class="section-weight">bobot 15% bersama resume</div>
+    </div>
+    <div class="quiz-grid">
+      <div class="quiz-item"><label>Kuis 1</label><input type="number" class="locked" id="k1" min="0" max="100" value="" placeholder="0"></div>
+      <div class="quiz-item"><label>Kuis 2</label><input type="number" class="locked" id="k2" min="0" max="100" value="" placeholder="0"></div>
+      <div class="quiz-item"><label>Kuis 3</label><input type="number" class="locked" id="k3" min="0" max="100" value="" placeholder="0"></div>
+      <div class="quiz-item"><label>Kuis 4</label><input type="number" class="locked" id="k4" min="0" max="100" value="" placeholder="0"></div>
+      <div class="quiz-item"><label>Kuis 5</label><input type="number" class="locked" id="k5" min="0" max="100" value="" placeholder="0"></div>
+    </div>
+    <div class="bobot-row">
+      <span class="bobot-chip">Rata-rata 5 kuis</span>
+      <span class="bobot-chip" id="kuis-avg-display">avg: —</span>
+    </div>
+  </div>
+
+  <!-- RESUME / TUGAS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Resume / Tugas</div>
+    </div>
+    <div class="input-row">
+      <label>Nilai Resume</label>
+      <div class="input-wrap"><input type="number" class="locked" id="resume" min="0" max="100" placeholder="0"></div>
+    </div>
+    <div class="bobot-row">
+      <span class="bobot-chip">Kuis + Resume = 15%</span>
+    </div>
+  </div>
+
+  <!-- UTS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">UTS</div>
+      <div class="section-weight">bobot 30%</div>
+    </div>
+    <div class="input-row">
+      <label>Nilai UTS</label>
+      <div class="input-wrap"><input type="number" class="locked" id="uts" min="0" max="100" placeholder="0"></div>
+    </div>
+  </div>
+
+  <!-- PRAKTIKUM - input baru -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">Praktikum</div>
+      <div class="section-weight">bobot 25%</div>
+    </div>
+    <div class="input-row">
+      <label>Nilai Praktikum</label>
+      <div class="input-wrap"><input type="number" class="highlight" id="praktikum" min="0" max="100" placeholder="—"></div>
+    </div>
+  </div>
+
+  <!-- UAS - input baru -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title">UAS</div>
+      <div class="section-weight">bobot 30%</div>
+    </div>
+    <div class="input-row">
+      <label>Nilai UAS</label>
+      <div class="input-wrap"><input type="number" class="highlight" id="uas" min="0" max="100" placeholder="—"></div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-box">
+    <div class="result-label">Nilai Akhir</div>
+    <div class="result-score" id="result-score">—</div>
+    <div class="result-index" id="result-index">?</div>
+    <div class="result-range" id="result-range">Isi semua nilai untuk melihat hasil</div>
+    <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+
+    <div class="breakdown" id="breakdown">
+      <div class="breakdown-item"><span class="bname">Kuis+Resume (15%)</span><span class="bval" id="b-kr">—</span></div>
+      <div class="breakdown-item"><span class="bname">Praktikum (25%)</span><span class="bval" id="b-p">—</span></div>
+      <div class="breakdown-item"><span class="bname">UTS (30%)</span><span class="bval" id="b-uts">—</span></div>
+      <div class="breakdown-item"><span class="bname">UAS (30%)</span><span class="bval" id="b-uas">—</span></div>
+    </div>
+
+    <div class="index-table">
+      <div class="idx-chip" data-idx="A" style="color:var(--A);border-color:var(--A);background:rgba(52,211,153,0.08)">A ≥80</div>
+      <div class="idx-chip" data-idx="AB" style="color:var(--AB);border-color:var(--AB);background:rgba(96,165,250,0.08)">AB 75–79.99</div>
+      <div class="idx-chip" data-idx="B" style="color:var(--B);border-color:var(--B);background:rgba(129,140,248,0.08)">B 70–74.99</div>
+      <div class="idx-chip" data-idx="BC" style="color:var(--BC);border-color:var(--BC);background:rgba(245,158,11,0.08)">BC 65–69.99</div>
+      <div class="idx-chip" data-idx="C" style="color:var(--C);border-color:var(--C);background:rgba(251,146,60,0.08)">C 60–64.99</div>
+      <div class="idx-chip" data-idx="D" style="color:var(--D);border-color:var(--D);background:rgba(248,113,113,0.08)">D 50–59.99</div>
+      <div class="idx-chip" data-idx="E" style="color:var(--E);border-color:var(--E);background:rgba(239,68,68,0.08)">E &lt;50</div>
+    </div>
+  </div>
+  <div class="note">* Nilai yang dikeluarkan berdasarkan Peserta Kelas Terdaftar</div>
+</div>
+
+<script>
+  const grades = [
+    { idx: 'A',  min: 80,    max: 100,   color: 'var(--A)' },
+    { idx: 'AB', min: 75,    max: 79.99, color: 'var(--AB)' },
+    { idx: 'B',  min: 70,    max: 74.99, color: 'var(--B)' },
+    { idx: 'BC', min: 65,    max: 69.99, color: 'var(--BC)' },
+    { idx: 'C',  min: 60,    max: 64.99, color: 'var(--C)' },
+    { idx: 'D',  min: 50,    max: 59.99, color: 'var(--D)' },
+    { idx: 'E',  min: 0,     max: 49.99, color: 'var(--E)' },
+  ];
+
+  function getGrade(score) {
+    return grades.find(g => score >= g.min && score <= g.max) || grades[grades.length - 1];
+  }
+
+  function val(id) {
+    const v = parseFloat(document.getElementById(id).value);
+    return isNaN(v) ? null : Math.min(100, Math.max(0, v));
+  }
+
+  function calculate() {
+    const k1 = val('k1'), k2 = val('k2'), k3 = val('k3'), k4 = val('k4'), k5 = val('k5');
+    const resume = val('resume');
+    const uts = val('uts');
+    const praktikum = val('praktikum');
+    const uas = val('uas');
+
+    // Kuis average
+    const kuisVals = [k1,k2,k3,k4,k5].filter(v => v !== null);
+    const kuisAvg = kuisVals.length > 0 ? kuisVals.reduce((a,b)=>a+b,0)/kuisVals.length : null;
+    document.getElementById('kuis-avg-display').textContent =
+      kuisAvg !== null ? `avg: ${kuisAvg.toFixed(1)}` : 'avg: —';
+
+    // Kuis+Resume: average of (kuisAvg and resume), weighted equally
+    let krScore = null;
+    if (kuisAvg !== null && resume !== null) krScore = (kuisAvg + resume) / 2;
+    else if (kuisAvg !== null) krScore = kuisAvg;
+    else if (resume !== null) krScore = resume;
+
+    document.getElementById('b-kr').textContent = krScore !== null ? krScore.toFixed(2) : '—';
+    document.getElementById('b-p').textContent = praktikum !== null ? praktikum.toFixed(2) : '—';
+    document.getElementById('b-uts').textContent = uts !== null ? uts.toFixed(2) : '—';
+    document.getElementById('b-uas').textContent = uas !== null ? uas.toFixed(2) : '—';
+
+    // Final score
+    let score = 0, filled = 0;
+    if (krScore !== null) { score += krScore * 0.15; filled++; }
+    if (praktikum !== null) { score += praktikum * 0.25; filled++; }
+    if (uts !== null) { score += uts * 0.30; filled++; }
+    if (uas !== null) { score += uas * 0.30; filled++; }
+
+    const allFilled = krScore !== null && praktikum !== null && uts !== null && uas !== null;
+
+    const scoreEl = document.getElementById('result-score');
+    const indexEl = document.getElementById('result-index');
+    const rangeEl = document.getElementById('result-range');
+    const progressEl = document.getElementById('progress-bar');
+
+    if (allFilled) {
+      const grade = getGrade(score);
+      scoreEl.textContent = score.toFixed(2);
+      scoreEl.style.color = grade.color;
+      indexEl.textContent = grade.idx;
+      indexEl.style.color = grade.color;
+      indexEl.style.background = grade.color.replace(')', ',0.15)').replace('var', 'rgba').replace('(--', '(');
+      indexEl.style.borderColor = grade.color;
+      rangeEl.textContent = `Range: ${grade.min} – ${grade.max === 100 ? '100' : grade.max}`;
+      progressEl.style.width = score + '%';
+      progressEl.style.background = `linear-gradient(90deg, ${grade.color}, ${grade.color}aa)`;
+
+      // highlight chips
+      document.querySelectorAll('.idx-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.dataset.idx === grade.idx);
+      });
+    } else if (filled > 0) {
+      // partial estimate
+      scoreEl.textContent = '~' + score.toFixed(1);
+      scoreEl.style.color = 'var(--muted)';
+      indexEl.textContent = '?';
+      indexEl.style.color = 'var(--muted)';
+      indexEl.style.background = 'rgba(107,116,153,0.1)';
+      indexEl.style.borderColor = 'var(--border)';
+      rangeEl.textContent = `Estimasi parsial (${filled}/4 komponen)`;
+      progressEl.style.width = '0%';
+      document.querySelectorAll('.idx-chip').forEach(c => c.classList.remove('active'));
+    } else {
+      scoreEl.textContent = '—';
+      scoreEl.style.color = 'var(--muted)';
+      indexEl.textContent = '?';
+      indexEl.style.color = 'var(--muted)';
+      indexEl.style.background = 'rgba(107,116,153,0.1)';
+      indexEl.style.borderColor = 'var(--border)';
+      rangeEl.textContent = 'Isi semua nilai untuk melihat hasil';
+      progressEl.style.width = '0%';
+      document.querySelectorAll('.idx-chip').forEach(c => c.classList.remove('active'));
+    }
+  }
+
+  document.querySelectorAll('input[type="number"]').forEach(el => {
+    el.addEventListener('input', calculate);
+  });
+
+  calculate();
+</script>
+</body>
+</html>
